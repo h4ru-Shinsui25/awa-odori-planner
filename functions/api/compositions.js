@@ -7,7 +7,7 @@ export async function onRequest(context) {
 
   if (request.method === "GET") {
     const { results } = await env.DB.prepare(
-      "SELECT id, name, category, min, sec FROM compositions ORDER BY created_at ASC, name COLLATE NOCASE ASC"
+"SELECT id, name, category, min, sec FROM compositions ORDER BY updated_at ASC, name COLLATE NOCASE ASC"
     ).all();
     return Response.json({ compositions: results || [], role }, {
       headers: { "Cache-Control": "no-store" }
@@ -32,10 +32,10 @@ export async function onRequest(context) {
       return Response.json({ error: "構成名・カテゴリー・時間を確認してください。" }, { status: 400 });
     }
     await env.DB.prepare(
-      `INSERT INTO compositions (id, name, category, min, sec, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-       ON CONFLICT(id) DO UPDATE SET name=excluded.name, category=excluded.category,
-       min=excluded.min, sec=excluded.sec, updated_at=CURRENT_TIMESTAMP`
+     `INSERT INTO compositions (id, name, category, min, sec, updated_at)
+ VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+ ON CONFLICT(id) DO UPDATE SET name=excluded.name, category=excluded.category,
+ min=excluded.min, sec=excluded.sec, updated_at=CURRENT_TIMESTAMP`
     ).bind(id, name, category, min, sec).run();
     return Response.json({ ok: true, composition: { id, name, category, min, sec } });
   }
