@@ -109,17 +109,19 @@ export async function onRequest(context) {
     return new Response("Password configuration missing.", { status: 500 });
   }
 
-  // ログアウト
-  if (url.pathname === "/__logout") {
-    return new Response(null, {
-      status: 303,
-      headers: {
-        "Location": "/",
-        "Set-Cookie": "planner_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0",
-        "Cache-Control": "no-store"
-      }
-    });
-  }
+// ログアウト
+if (url.pathname === "/__logout") {
+  const response = loginPage();
+
+  response.headers.append(
+    "Set-Cookie",
+    "planner_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0"
+  );
+
+  response.headers.set("Cache-Control", "no-store");
+
+  return response;
+}
 
   // ログイン処理
   if (url.pathname === "/__login" && request.method === "POST") {
