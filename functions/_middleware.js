@@ -10,35 +10,59 @@ function base64url(bytes) {
     .replace(/=+$/, "");
 }
 
-async function sign(expiry, password) {
+async function sign(data, password) {
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign", "verify"]
+    ["sign"]
   );
 
-  const data = new TextEncoder().encode(String(expiry));
-  const signature = await crypto.subtle.sign("HMAC", key, data);
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(data)
+  );
+
   return base64url(signature);
 }
 
-async function validSession(request, password) {
+async function validSession(request, env) {
   const cookie = request.headers.get("Cookie") || "";
   const match = cookie.match(/(?:^|;\s*)planner_session=([^;]+)/);
-  if (!match) return false;
+  if (!match) return null;
 
   try {
-    const [expiryText, signature] = match[1].split(".");
-    const expiry = Number(expiryText);
+    const parts = match[1].split(".");
+    const expiry = Number(parts[0]);
 
-    if (!Number.isFinite(expiry) || expiry < Date.now()) return false;
+    if (!Number.isFinite(expiry) || expiry < Date.now()) return null;
 
-    const expected = await sign(expiry, password);
-    return signature === expected;
+    // 新形式：有効期限・権限・署名
+    if (parts.length === 3) {
+      const role = parts[1];
+      if (role !== "admin" && role !== "member") return null;
+
+      const password = role === "admin"
+        ? env.ADMIN_PASSWORD
+        : env.SITE_PASSWORD;
+
+      if (!password) return null;
+
+      const expected = await sign(`${expiry}.${role}`, password);
+      return parts[2] === expected ? role : null;
+    }
+
+    // 旧形式のログインCookieは一般ユーザーとして扱う
+    if (parts.length === 2 && env.SITE_PASSWORD) {
+      const expected = await sign(String(expiry), env.SITE_PASSWORD);
+      return parts[1] === expected ? "member" : null;
+    }
+
+    return null;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -62,7 +86,7 @@ p{color:#fca5a5}
 </head>
 <body><main>
 <h2>阿波おどり 演舞プランナー</h2>
-<p>共通パスワードを入力してください。</p>
+<p>パスワードを入力してください。</p>
 ${error ? "<p>パスワードが違います。</p>" : ""}
 <form method="POST" action="/__login">
 <input type="password" name="password" placeholder="パスワード" required>
@@ -70,36 +94,64 @@ ${error ? "<p>パスワードが違います。</p>" : ""}
 </form>
 </main></body></html>`, {
     status: error ? 401 : 200,
-    headers: { "Content-Type": "text/html; charset=UTF-8", "Cache-Control": "no-store" }
+    headers: {
+      "Content-Type": "text/html; charset=UTF-8",
+      "Cache-Control": "no-store"
+    }
   });
 }
 
 export async function onRequest(context) {
   const { request, env, next } = context;
-  const password = env.SITE_PASSWORD;
+  const url = new URL(request.url);
 
-  if (!password) {
+  if (!env.SITE_PASSWORD) {
     return new Response("Password configuration missing.", { status: 500 });
   }
 
-  const url = new URL(request.url);
+  // ログアウト
+  if (url.pathname === "/__logout") {
+    return new Response(null, {
+      status: 303,
+      headers: {
+        "Location": "/",
+        "Set-Cookie": "planner_session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0",
+        "Cache-Control": "no-store"
+      }
+    });
+  }
 
+  // ログイン処理
   if (url.pathname === "/__login" && request.method === "POST") {
     const form = await request.formData();
     const entered = form.get("password");
 
-    if (typeof entered !== "string" || entered !== password) {
+    let role = null;
+
+    if (typeof entered === "string") {
+      if (env.ADMIN_PASSWORD && entered === env.ADMIN_PASSWORD) {
+        role = "admin";
+      } else if (entered === env.SITE_PASSWORD) {
+        role = "member";
+      }
+    }
+
+    if (!role) {
       return Response.redirect(url.origin + "/__login?error=1", 303);
     }
 
     const expiry = Date.now() + 7 * 24 * 60 * 60 * 1000;
-    const signature = await sign(expiry, password);
+    const password = role === "admin"
+      ? env.ADMIN_PASSWORD
+      : env.SITE_PASSWORD;
+
+    const signature = await sign(`${expiry}.${role}`, password);
 
     return new Response(null, {
       status: 303,
       headers: {
         "Location": "/",
-        "Set-Cookie": `planner_session=${expiry}.${signature}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=604800`,
+        "Set-Cookie": `planner_session=${expiry}.${role}.${signature}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=604800`,
         "Cache-Control": "no-store"
       }
     });
@@ -109,7 +161,11 @@ export async function onRequest(context) {
     return loginPage(url.searchParams.has("error"));
   }
 
-  if (await validSession(request, password)) {
+  // ログイン済みか確認
+  const role = await validSession(request, env);
+
+  if (role) {
+    context.data.role = role;
     return next();
   }
 
