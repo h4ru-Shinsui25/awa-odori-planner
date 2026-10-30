@@ -40,7 +40,7 @@ footer{text-align:center;color:#8795a4;font-size:11px;padding:15px}
 <header><div class="eyebrow">AWA ODORI · PERFORMANCE PLANNER</div><div class="brand">阿波おどり 演舞プランナー</div><div class="sub">演舞構成から本番のタイムスケジュールまで</div></header>
 <main>
 <nav class="tabs no-print" aria-label="メニュー">
-<button class="tab active" data-tab="planner">進行表</button><button class="tab" data-tab="compositions">構成組み立て</button><button class="tab" data-tab="design">デザイン設定</button><button class="tab" data-tab="features">機能設定</button><button class="tab" data-tab="code">コード編集</button>
+<button class="tab active" data-tab="planner">進行表</button><button class="tab" data-tab="compositions">構成組み立て</button><button class="tab" data-tab="design">デザイン設定</button><button class="tab" data-tab="features">機能設定</button>
 </nav>
 <section id="planner" class="view active">
 <div class="panel no-print">
@@ -71,15 +71,12 @@ footer{text-align:center;color:#8795a4;font-size:11px;padding:15px}
 <section id="features" class="view">
 <div class="panel"><h2>機能設定</h2><label style="display:flex;align-items:center;gap:10px;margin:12px 0"><input id="showTimeline" type="checkbox" checked style="width:auto">タイムラインを表示する</label><label style="display:flex;align-items:center;gap:10px;margin:12px 0"><input id="showElapsed" type="checkbox" checked style="width:auto">経過時間を表示する</label><label style="display:flex;align-items:center;gap:10px;margin:12px 0"><input id="showDanceOnly" type="checkbox" style="width:auto">演舞だけを合計対象にする（全体時間は別表示）</label><button class="primary" id="applyFeatures">設定を保存</button><p class="muted tiny">合計時間は通常、演舞・MC・移動・準備などすべてを含みます。</p></div>
 </section>
-<section id="code" class="view">
-<div class="panel"><h2>コード編集</h2><div class="note">HTML・CSS・JavaScriptを含む現在のサイト全体を編集できます。編集内容を適用すると、サイトが再読み込みされます。先にバックアップを保存してください。誤ったコードを適用すると表示できなくなる場合があります。</div><div class="toolbar" style="margin:12px 0"><button class="secondary" id="loadCode">現在のコードを読み込む</button><button class="primary" id="downloadCode">HTMLファイルとして保存</button></div><textarea id="codeEditor" class="editor" spellcheck="false" aria-label="サイトのHTMLコード"></textarea><button class="danger" id="applyCode" style="margin-top:10px">編集したコードを適用して再読み込み</button></div>
-</section>
 <footer>AWA ODORI · 演舞の流れを、ひとつずつ。</footer>
 </main>
 <div id="toast" class="hidden" role="status"></div>
 <script>
 (()=>{
-const $=id=>document.getElementById(id),STORE='awaPlannerSite_v2',CODE='awaPlannerCustomCode_v1',uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
+const $=id=>document.getElementById(id),STORE='awaPlannerSite_v2',uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
 const fresh=(name='新しい進行表')=>({id:uid(),name,start:'12:00',target:15,items:[]});
 let state;try{state=JSON.parse(localStorage.getItem(STORE))}catch(e){}
 if(!state||!Array.isArray(state.schedules)||!state.schedules.length)state={active:null,schedules:[fresh('サンプル進行表')],design:null,features:null};
@@ -199,9 +196,6 @@ if(!Array.isArray(state.compositions))state.compositions=[];
 if(!Array.isArray(state.assembly))state.assembly=[];update();toast('バックアップを読み込みました')}catch(err){toast('ファイルを読み込めませんでした')}e.target.value=''};
 function download(blob,name){let u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 $('exportPng').onclick=()=>{let s=current(),w=1100,row=64,head=210,h=head+Math.max(1,s.items.length)*row+90,c=document.createElement('canvas');c.width=w;c.height=h;let x=c.getContext('2d');x.fillStyle='#101b2a';x.fillRect(0,0,w,h);x.fillStyle='#d7b66c';x.font='bold 18px sans-serif';x.fillText('AWA ODORI / PERFORMANCE PLANNER',55,55);x.fillStyle='#f2ead8';x.font='bold 34px sans-serif';x.fillText(s.name,55,108);x.font='18px sans-serif';x.fillStyle='#aab7c5';x.fillText('開始 '+s.start+'   目標 '+s.target+' 分',55,150);let total=s.items.reduce((a,it)=>a+dur(it),0);x.fillStyle='#d7b66c';x.font='bold 24px sans-serif';x.fillText('合計 '+long(total),55,195);let elapsed=0;s.items.forEach((it,i)=>{let y=head+i*row;x.strokeStyle='#405166';x.beginPath();x.moveTo(55,y);x.lineTo(w-55,y);x.stroke();x.fillStyle='#d7b66c';x.font='bold 18px sans-serif';x.fillText(String(i+1).padStart(2,'0'),55,y+39);x.fillStyle='#f2ead8';x.font='bold 18px sans-serif';x.fillText(it.name.slice(0,28),110,y+39);x.fillStyle='#aab7c5';x.font='15px sans-serif';x.fillText(it.type,650,y+39);x.textAlign='right';x.fillStyle='#f2ead8';x.fillText(at(s.start,elapsed)+' / '+long(dur(it)),w-55,y+39);x.textAlign='left';elapsed+=dur(it)});x.fillStyle='#d7b66c';x.font='bold 20px sans-serif';x.fillText('終了予定 '+at(s.start,total),55,h-35);c.toBlob(b=>{if(b)download(b,'awa-odori-plan.png')})};
-$('loadCode').onclick=async()=>{let saved=localStorage.getItem(CODE);if(saved){$('codeEditor').value=saved;return}try{let r=await fetch(location.href,{cache:'no-store'});$('codeEditor').value=await r.text()}catch(e){toast('コードを読み込めませんでした。HTMLファイルを直接編集してください')}};
-$('downloadCode').onclick=()=>{let v=$('codeEditor').value;if(!v.trim())return toast('先にコードを読み込んでください');download(new Blob([v],{type:'text/html;charset=utf-8'}),'awa-odori-planner.html')};
-$('applyCode').onclick=()=>{let v=$('codeEditor').value;if(!v.trim()||!confirm('編集したHTMLをこのブラウザで適用しますか？先にバックアップをおすすめします。'))return;localStorage.setItem(CODE,v);document.open();document.write(v);document.close()};
 initDesign();initFeatures();render();renderCompositions();save();loadSharedCompositions();
 })();
 </script>
