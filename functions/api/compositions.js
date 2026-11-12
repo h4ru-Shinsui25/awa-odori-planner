@@ -1,4 +1,4 @@
-const allowedCategories = new Set(["全体", "男踊り", "女踊り", "絡み"]);
+const allowedCategories = new Set(["全体", "男踊り", "女踊り", "絡み","子供"]);
 
 export async function onRequest(context) {
   const { request, env } = context;
