@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b2a">
+<title>阿波おどり 演舞プランナー</title>
+<style>
+:root{--bg:#0d1724;--panel:#142437;--panel2:#1a2e43;--line:#354a60;--text:#f2eee5;--muted:#aab5c1;--gold:#d7b66c;--gold2:#b9954e;--danger:#8e454b;--radius:14px;font-family:system-ui,-apple-system,"Yu Gothic",Meiryo,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b3045 0,#0d1724 65%);color:var(--text);min-height:100vh}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 13px;font-weight:650}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.primary{background:var(--gold2);color:#111a24}.secondary{background:#263d54;color:#f5ead5;border:1px solid #50657a}.danger{background:#482b32;color:#ffdfe0;border:1px solid #75434b}
+input,select,textarea{width:100%;min-width:0;background:#0b1521;color:var(--text);border:1px solid #465a70;border-radius:8px;padding:10px}
+header{padding:25px max(18px,calc((100% - 1150px)/2));border-bottom:1px solid #34475a;background:#0b1521dd}
+.eyebrow{font-size:11px;letter-spacing:.18em;color:var(--gold);font-weight:800}.brand{font-size:clamp(23px,4vw,32px);font-weight:800;margin:8px 0 3px}.sub{color:var(--muted);font-size:13px}
+main{max-width:1150px;margin:20px auto;padding:0 16px 40px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.tab{background:transparent;border:1px solid var(--line);color:var(--muted)}.tab.active{background:var(--gold);color:#101a24;border-color:var(--gold)}
+.view{display:none}.view.active{display:block}.layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.8fr);gap:14px}
+.panel{background:linear-gradient(145deg,var(--panel),#101d2b);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;min-width:0}
+h2{font-size:15px;color:var(--gold);letter-spacing:.06em;margin:0 0 14px}h3{font-size:14px;margin:0}
+label{display:block;color:var(--muted);font-size:12px}label input,label select{margin-top:6px}
+.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.between{justify-content:space-between}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.muted{color:var(--muted)}.tiny{font-size:11px}.gold{color:var(--gold)}
+.item{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;margin:9px 0}.item-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}.pill{border:1px solid #66788a;border-radius:20px;padding:3px 8px;font-size:11px;color:#d5d1c8}
+.item-actions{display:flex;gap:5px}.item-actions button{padding:5px 9px}.item input{margin-top:5px}.duration{text-align:right;color:var(--gold);font-weight:700;font-size:12px;margin-top:7px}
+.summary{text-align:center}.big{font-size:38px;font-weight:800;letter-spacing:.04em}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;border-top:1px solid var(--line);padding-top:12px;text-align:left}
+.timeline{border-left:2px solid var(--gold2);padding-left:14px;margin-left:5px}.timepoint{margin:0 0 16px;position:relative}.timepoint:before{content:"";position:absolute;left:-20px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--gold)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+.category-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 14px}.category-tab{background:#263d54;color:#d8e0e8;border:1px solid #50657a;padding:8px 12px}.category-tab.active{background:var(--gold);color:#111a24;border-color:var(--gold)}
+.composition-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px}.composition-card{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 10px;cursor:grab;min-width:0}.composition-card:active{cursor:grabbing}.composition-card strong{display:block;font-size:13px;overflow-wrap:anywhere}.composition-card .card-meta{display:flex;justify-content:space-between;gap:6px;align-items:center;margin-top:6px}.composition-card .card-time{color:var(--gold);font-weight:750;font-size:12px}.composition-card .card-actions{display:flex;gap:4px;margin-top:7px}.composition-card .card-actions button{padding:4px 7px;font-size:11px}.assembly-drop{min-height:100px;border:1px dashed #71849a;border-radius:10px;padding:10px;background:#0b152166}.assembly-row{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}.assembly-row[draggable="true"]{cursor:grab}.assembly-row .assembly-title{flex:1;min-width:0;font-size:13px}.assembly-row .assembly-time{color:var(--gold);font-weight:700;font-size:12px;white-space:nowrap}.assembly-row button{padding:4px 7px;font-size:11px}.total-banner{background:#0b1521;border:1px solid var(--gold2);border-radius:10px;padding:13px;text-align:center;margin-top:12px}.total-banner .big{font-size:34px}.toolbar button{flex:1}.hidden{display:none!important}
+
+.position-editor{margin-top:14px;border:1px solid var(--gold2);border-radius:12px;padding:14px;background:#0b1521}
+.formation-toolbar,.position-actions{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0;align-items:center}
+.formation-toolbar button,.position-actions button{flex:1}
+.formation-tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px}
+.formation-tab{white-space:nowrap;flex:0 0 auto}
+.formation-tab.active{border-color:var(--gold);background:#35465a;color:#fff}
+.stage-wrap{background:#f8fafc;border:1px solid #9aa7b5;border-radius:9px;padding:8px;overflow:hidden}
+.stage{height:390px;max-height:65vh;min-height:260px;position:relative;overflow:hidden;background-color:#fff;background-image:linear-gradient(#e4e9ef 1px,transparent 1px),linear-gradient(90deg,#e4e9ef 1px,transparent 1px);background-size:5% 10%;border:1px solid #c5ced8;touch-action:pan-y}
+.stage:before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:2px solid #8997a6;pointer-events:none}
+.stage:after{content:"";position:absolute;top:50%;left:0;right:0;border-top:2px solid #8997a6;pointer-events:none}
+.stage-marker{position:absolute;width:52px;height:52px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 5px #0005;display:flex;align-items:center;justify-content:center;flex-direction:column;transform:translate(-50%,-50%);cursor:grab;touch-action:none;z-index:2;padding:2px;color:#17202a;font-size:11px;font-weight:800;line-height:1.1;overflow:hidden}
+.stage-marker small{font-size:8px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stage-marker.selected{outline:3px solid #1d4ed8;outline-offset:2px;z-index:4}
+.stage-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.subgrid-overlay{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.35;background-image:linear-gradient(to right,#9ca3af 1px,transparent 1px),linear-gradient(to bottom,#9ca3af 1px,transparent 1px);}
+.selection-box{position:absolute;border:1px dashed #2563eb;background:#3b82f633;pointer-events:none;z-index:6}
+.marker-fields{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:8px;margin:9px 0}
+.marker-size-field{grid-column:1/-1}.marker-size-field input{width:100%}
+.stage-options{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 4px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.marker-fields label{font-size:11px;color:var(--muted)}
+.marker-fields input{width:100%;margin-top:4px}
+.line-toggle{display:flex;align-items:center;gap:7px;font-size:12px}
+@media(max-width:520px){.stage{height:320px}.stage-marker{width:44px;height:44px;font-size:10px}.marker-fields{grid-template-columns:minmax(0,1fr) 90px}}
+\n.editor{min-height:330px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.5;white-space:pre;tab-size:2}
+.note{background:#202d3b;border-left:3px solid var(--gold);padding:10px 12px;border-radius:5px;color:#c5cbd1;font-size:12px;line-height:1.6}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--gold);color:#111a24;padding:11px 16px;border-radius:9px;box-shadow:0 8px 30px #0008;z-index:20}
+footer{text-align:center;color:#8795a4;font-size:11px;padding:15px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}header{padding:20px 16px}.big{font-size:32px}.panel{padding:13px}}
+@media print{body{background:white;color:#111}header,.tabs,.no-print,.settings-only{display:none!important}main{margin:0;padding:0}.view{display:none!important}#planner{display:block!important}.panel,.item{background:white;color:#111;border:1px solid #aaa;break-inside:avoid}.muted,label{color:#555}.gold,h2{color:#76551a}.timeline{border-color:#99742d}}
+
+.arrange-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:7px 0}
+.arrange-group>span{min-width:82px}
+.arrange-btn{padding:7px 10px;font-size:12px}
+.arrange-btn:disabled{opacity:.4;cursor:not-allowed}
+
+
+.formation-rename{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:9px 0 12px}
+.formation-rename label{font-size:12px;white-space:nowrap}
+.formation-rename input{flex:1;min-width:130px;max-width:360px}
+
+/* Immersive position editing: fixed viewport overlay with scrolling controls */
+body.position-fullscreen-active{overflow:hidden}
+.position-editor.is-fullscreen{
+ position:fixed!important;inset:0!important;z-index:99999!important;
+ width:100vw!important;max-width:none!important;height:100dvh!important;
+ margin:0!important;padding:clamp(10px,2vw,22px)!important;
+ border-radius:0!important;box-sizing:border-box!important;
+ overflow-y:auto!important;overscroll-behavior:contain;
+ background:var(--bg,#0d1724)!important;
+}
+.position-editor.is-fullscreen .stage-wrap{
+ width:100%;max-width:none;margin:10px auto;
+}
+.position-editor.is-fullscreen .stage{
+ height:min(68dvh,850px);min-height:300px;
+ touch-action:none;
+}
+.position-editor.is-fullscreen .formation-tabs{position:relative}
+@media(max-width:650px){
+ .position-editor.is-fullscreen{padding:10px!important;padding-bottom:calc(18px + env(safe-area-inset-bottom))!important}
+ .position-editor.is-fullscreen .stage{height:min(57dvh,650px);min-height:260px}
+ .position-editor.is-fullscreen .formation-toolbar{flex-wrap:wrap}
+ .position-editor.is-fullscreen .stage-wrap{overflow:visible}
+}
+
+</style>
+</head>
+<body>
+<header><div class="eyebrow">AWA ODORI · PERFORMANCE PLANNER</div><div class="brand">阿波おどり 演舞プランナー</div><div class="sub">演舞構成から本番のタイムスケジュールまで</div></header>
+<main>
+<nav class="tabs no-print" aria-label="メニュー">
+<button class="tab active" data-tab="planner">進行表</button><button class="tab" data-tab="compositions">構成組み立て</button><button class="tab" data-tab="design">デザイン設定</button><button class="tab" data-tab="features">機能設定</button>
+</nav>
+<section id="planner" class="view active">
+<div class="panel no-print">
+<h2>進行表の管理</h2><div class="row"><select id="scheduleSelect" aria-label="進行表を選択"></select><button class="primary" id="newSchedule">＋ 新規</button></div>
+<div class="row" style="margin-top:9px"><input id="scheduleName" placeholder="進行表の名前"><button class="secondary" id="renameSchedule">名前変更</button><button class="secondary" id="duplicateSchedule">複製</button><button class="danger" id="deleteSchedule">削除</button></div>
+<div class="tiny muted" id="saveStatus" style="margin-top:8px">このブラウザに自動保存</div>
+</div>
+<div class="layout">
+<div>
+<div class="panel no-print"><h2>壱 · 本番設定</h2><div class="grid2"><label>開始時刻<input id="startTime" type="time" value="12:00"></label><label>目標時間（分）<input id="targetTime" type="number" min="0" max="1440" value="15"></label></div><div class="muted tiny" style="margin-top:9px">目標時間との差：<b class="gold" id="difference">残り 15分00秒</b></div></div>
+<div class="panel no-print"><h2>弐 · 項目を追加</h2><label>項目名<input id="newName" placeholder="例：開幕演舞、流し踊り、MC"></label><div class="grid2" style="margin-top:10px"><label>種類<select id="newType"><option>演舞</option><option>MC</option><option>移動</option><option>準備</option><option>休憩</option><option>その他</option></select></label><div class="grid2"><label>分<input id="newMin" type="number" min="0" value="2"></label><label>秒<input id="newSec" type="number" min="0" max="59" value="30"></label></div></div><button class="primary" id="addItem" style="width:100%;margin-top:12px">＋ 進行表に追加</button></div>
+<div class="panel"><div class="row between"><h2 style="margin:0">参 · 演舞・進行一覧</h2><span class="pill" id="count">0項目</span></div><div id="items"></div><div id="empty" class="muted" style="text-align:center;padding:25px">まだ項目がありません。上から追加してください。</div></div>
+</div>
+<div>
+<div class="panel summary"><h2 style="text-align:left">肆 · 時間集計</h2><div class="muted tiny">演舞時間合計</div><div class="big gold" id="danceTotal">0:00</div><div class="muted tiny">全体の進行時間</div><div class="big" id="grandTotal">0:00</div><div class="stats"><div><div class="tiny muted">演舞以外</div><b id="otherTotal">0:00</b></div><div><div class="tiny muted">終了予定時刻</div><b class="gold" id="endTime">12:00</b></div></div></div>
+<div class="panel"><h2>伍 · 本番タイムライン</h2><div class="muted tiny" style="margin-bottom:15px">各項目の開始・終了時刻と経過時間</div><div id="timeline" class="timeline muted tiny">項目を追加すると表示されます。</div></div>
+<div class="panel no-print"><h2>陸 · 出力・バックアップ</h2><div class="toolbar"><button class="primary" id="exportPng">画像（PNG）</button><button class="secondary" id="printPdf">PDF・印刷</button></div><div class="toolbar" style="margin-top:8px"><button class="secondary" id="exportJson">バックアップ保存</button><label class="secondary" style="text-align:center;padding:10px;cursor:pointer;border-radius:9px">バックアップ読込<input id="importJson" type="file" accept=".json,application/json" style="display:none"></label></div><p class="muted tiny">PDFは印刷画面で「PDFとして保存」を選択してください。</p></div>
+</div></div>
+</section>
+<section id="compositions" class="view">
+<div class="panel" id="compositionAdminPanel"><h2>壱 · 構成を登録</h2><div class="grid2"><label>カテゴリー<select id="compositionCategory"><option>全体</option><option>男踊り</option><option>女踊り</option><option>絡み</option><option>子ども</option></select></label><label>構成名<input id="compositionName" placeholder="例：フォーメーションA"></label></div><div class="grid2" style="margin-top:10px"><label>分<input id="compositionMin" type="number" min="0" max="1440" value="2"></label><label>秒<input id="compositionSec" type="number" min="0" max="59" value="0"></label></div><button class="primary" id="saveComposition" style="width:100%;margin-top:12px">＋ 構成を登録</button><p class="muted tiny" id="compositionEditHint">登録した構成は後から編集・削除できます。</p></div>
+<div class="panel"><div class="row between"><h2 style="margin:0">壱 · 登録済みの構成</h2><span class="pill" id="compositionCount">0件</span></div><div class="row between" style="margin:8px 0 10px"><span class="muted tiny" id="compositionShareStatus">共有データを読み込んでいます…</span><button class="secondary" id="refreshCompositions" type="button">更新</button></div><div class="category-tabs" id="categoryTabs"><button class="category-tab active" data-category="全体">全体</button><button class="category-tab" data-category="男踊り">男踊り</button><button class="category-tab" data-category="女踊り">女踊り</button><button class="category-tab" data-category="絡み">絡み</button><button class="category-tab" data-category="子ども">子ども</button></div><div class="composition-grid" id="compositionCards"></div><div class="muted tiny" id="compositionEmpty" style="text-align:center;padding:18px">このカテゴリーにはまだ構成がありません。</div></div>
+<div class="panel"><div class="row between"><h2 style="margin:0">参 · 演舞を組み立てる</h2><button class="secondary" id="clearAssembly">すべて外す</button></div><p class="muted tiny">上の構成カードをドラッグして追加できます。カードの「＋追加」でも組み込めます。下の一覧はドラッグ、または矢印で順番を変更できます。</p><div class="assembly-drop" id="assemblyDrop"><div id="assemblyList"></div><div id="assemblyEmpty" class="muted tiny" style="text-align:center;padding:20px">ここに構成を追加してください。</div></div><div class="total-banner"><div class="muted tiny">完成した演舞の合計時間</div><div class="big gold" id="assemblyTotal">0分00秒</div><div class="muted tiny" id="assemblyCount">0構成</div></div>
+<div class="position-editor hidden" id="positionEditor">
+  <div class="row between"><h2 style="margin:0">立ち位置・隊形の編集</h2><div class="row" style="gap:8px;flex-wrap:wrap">
+    <button class="primary" id="togglePositionFullscreen" type="button" aria-pressed="false">⛶ 全画面で編集</button>
+    <button class="secondary" id="closePositionEditor" type="button">閉じる</button>
+  </div></div>
+  <p class="muted tiny" id="positionEditorTitle" style="margin:9px 0">丸をドラッグして自由に配置できます。名前と色も変更できます。</p>
+  <div class="formation-toolbar">
+    <button class="primary" id="addFormation" type="button">＋ 隊形を追加</button>
+    <button class="secondary" id="duplicateFormation" type="button">この隊形を複製</button>
+    <button class="danger" id="deleteFormation" type="button">隊形を削除</button>
+  </div>
+  <div class="formation-tabs" id="formationTabs" aria-label="隊形の順番"></div>
+  <div class="formation-rename">
+    <label for="formationNameInput">選択中の隊形名</label>
+    <input id="formationNameInput" maxlength="40" placeholder="例：登場・ピラミッド・ラスト">
+    <button type="button" class="secondary" id="renameFormation">名前を変更</button>
+  </div>
+  <div class="row between" style="margin:5px 0 8px">
+    <label class="line-toggle"><input type="checkbox" id="showMoveLines" checked> 移動線・矢印を表示</label>
+    <span class="muted tiny" id="formationCounter"></span>
+  </div>
+  <div class="stage-wrap" id="positionStageWrap"><div class="stage" id="positionStage" aria-label="立ち位置ステージ">
+    <svg class="stage-lines" id="stageLines" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+    <div id="subgridOverlay" class="subgrid-overlay" hidden></div><div id="stageMarkers"></div><div id="selectionBox" class="selection-box" hidden></div>
+  </div></div>
+
+  <div class="stage-options">
+    <label class="line-toggle"><input type="checkbox" id="snapToGrid"> グリッドに吸着して配置</label>
+    <label class="line-toggle" for="gridDivision">吸着の細かさ
+      <select id="gridDivision" style="width:auto;min-width:85px;margin-left:5px">
+        <option value="1">1（方眼）</option>
+        <option value="2">1/2</option>
+        <option value="3">1/3</option>
+        <option value="4">1/4</option>
+        <option value="5">1/5</option>
+      </select>
+    </label>
+    <span class="tiny muted">ONのとき、方眼の間を指定した割合で細かく配置できます</span>
+  </div>
+  <div class="position-actions">
+    <button class="primary" id="addDancer" type="button">＋ 丸を追加</button>
+    <button class="secondary" id="duplicateDancer" type="button">選択した丸を複製</button><button class="danger" id="removeDancer" type="button">選択した丸を削除</button>
+  </div>
+
+  <div class="panel" id="markerArrangePanel" style="margin-top:12px;padding:12px">
+    <strong style="display:block;margin-bottom:8px">複数の丸を整列・配置</strong>
+    <div class="tiny muted" style="margin-bottom:8px">2個以上を選択すると使えます。均等配置は3個以上必要です。</div>
+    <div class="arrange-group">
+      <span class="tiny muted">左右の整列</span>
+      <button type="button" class="secondary arrange-btn" data-arrange="left">左揃え</button>
+      <button type="button" class="secondary arrange-btn" data-arrange="centerX">左右中央</button>
+      <button type="button" class="secondary arrange-btn" data-arrange="right">右揃え</button>
+    </div>
+    <div class="arrange-group">
+      <span class="tiny muted">上下の整列</span>
+      <button type="button" class="secondary arrange-btn" data-arrange="top">上揃え</button>
+      <button type="button" class="secondary arrange-btn" data-arrange="centerY">上下中央</button>
+      <button type="button" class="secondary arrange-btn" data-arrange="bottom">下揃え</button>
+    </div>
+    <div class="arrange-group">
+      <span class="tiny muted">均等な間隔</span>
+      <button type="button" class="secondary arrange-btn" data-arrange="distributeX">横方向に均等</button>
+      <button type="button" class="secondary arrange-btn" data-arrange="distributeY">縦方向に均等</button>
+    </div>
+    <div id="arrangeStatus" class="tiny muted" style="margin-top:7px">丸を複数選択してください。</div>
+  </div>
+  <div class="marker-fields">
+    <label>選択した丸の名前<input id="markerName" maxlength="12" placeholder="例：新粋"></label>
+    <label>丸の色<input id="markerColor" type="color" value="#d7b66c"></label><label class="marker-size-field">丸のサイズ <span id="markerSizeValue">52px</span><input id="markerSize" type="range" min="32" max="100" step="2" value="52"></label>
+  </div>
+  <div class="panel" style="padding:12px;margin:12px 0">
+    <strong>丸のプリセット</strong>
+    <p class="tiny muted" style="margin:5px 0 10px">選択した丸の名前・色・サイズを保存して、あとから何度でも使えます。</p>
+    <div class="arrange-group">
+      <input id="presetName" maxlength="30" placeholder="プリセット名（例：男踊り）" style="flex:1;min-width:130px">
+      <button type="button" class="secondary" id="saveMarkerPreset">選択した丸を登録</button>
+    </div>
+    <div class="arrange-group">
+      <select id="markerPresetSelect" style="flex:1;min-width:150px"><option value="">プリセットを選択</option></select>
+      <button type="button" class="primary" id="addPresetMarker">丸を追加</button>
+      <button type="button" class="secondary" id="applyMarkerPreset">選択した丸に適用</button>
+      <button type="button" class="danger" id="deleteMarkerPreset">削除</button>
+    </div>
+  </div>
+  <p class="muted tiny" id="positionSaveStatus" style="margin:9px 0 0">丸をドラッグ：移動 ／ 空白をドラッグ：範囲選択 ／ Shift＋クリック：複数選択</p>
+</div></div>
+</section>
+<section id="design" class="view">
+<div class="panel"><h2>デザイン設定</h2><div class="grid2"><label>背景色<input type="color" id="bgColor" value="#0d1724"></label><label>パネル色<input type="color" id="panelColor" value="#142437"></label><label>アクセント色<input type="color" id="accentColor" value="#d7b66c"></label><label>文字色<input type="color" id="textColor" value="#f2eee5"></label></div><button class="primary" id="applyDesign" style="margin-top:13px">デザインを適用</button><button class="secondary" id="resetDesign" style="margin:13px 0 0 7px">初期デザインに戻す</button><p class="muted tiny">変更内容はこのブラウザに保存されます。</p></div>
+</section>
+<section id="features" class="view">
+<div class="panel"><h2>機能設定</h2><label style="display:flex;align-items:center;gap:10px;margin:12px 0"><input id="showTimeline" type="checkbox" checked style="width:auto">タイムラインを表示する</label><label style="display:flex;align-items:center;gap:10px;margin:12px 0"><input id="showElapsed" type="checkbox" checked style="width:auto">経過時間を表示する</label><label style="display:flex;align-items:center;gap:10px;margin:12px 0"><input id="showDanceOnly" type="checkbox" style="width:auto">演舞だけを合計対象にする（全体時間は別表示）</label><button class="primary" id="applyFeatures">設定を保存</button><p class="muted tiny">合計時間は通常、演舞・MC・移動・準備などすべてを含みます。</p></div>
+</section>
+<footer>AWA ODORI · 演舞の流れを、ひとつずつ。</footer>
+</main>
+<div id="toast" class="hidden" role="status"></div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),STORE='awaPlannerSite_v2',uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
+const fresh=(name='新しい進行表')=>({id:uid(),name,start:'12:00',target:15,items:[]});
+let state;try{state=JSON.parse(localStorage.getItem(STORE))}catch(e){}
+if(!state||!Array.isArray(state.schedules)||!state.schedules.length)state={active:null,schedules:[fresh('サンプル進行表')],design:null,features:null};
+if(!state.schedules.some(s=>s.id===state.active))state.active=state.schedules[0].id;
+if(!Array.isArray(state.compositions))state.compositions=[];
+if(!Array.isArray(state.assembly))state.assembly=[];
+ if(!state.positionLayouts||typeof state.positionLayouts!=='object')state.positionLayouts={};
+const defaults={bg:'#0d1724',panel:'#142437',accent:'#d7b66c',text:'#f2eee5'};
+const defaultFeatures={showTimeline:true,showElapsed:true,showDanceOnly:false};
+let activePositionEntryId=null,selectedDancerId=null,dragDancerId=null;
+let selectedMarkerIds=new Set();
+ let toastTimer,activeCategory='全体',editingComposition=null,dragCompositionId=null,dragAssemblyIndex=null,isAdmin=false,compositionBusy=false,legacyImportAttempted=false;
+const current=()=>state.schedules.find(s=>s.id===state.active)||state.schedules[0];
+const toast=m=>{const t=$('toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),2400)};
+const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(state));$('saveStatus').textContent='✓ このブラウザに自動保存済み'}catch(e){$('saveStatus').textContent='保存できませんでした（バックアップを利用してください）'}};
+const fmt=n=>{n=Math.max(0,Math.round(n));return Math.floor(n/60)+':'+String(n%60).padStart(2,'0')};
+const long=n=>Math.floor(n/60)+'分'+String(n%60).padStart(2,'0')+'秒';
+const dur=x=>Math.max(0,Number(x.min)||0)*60+Math.max(0,Number(x.sec)||0);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const at=(start,off)=>{let [h,m]=(start||'12:00').split(':').map(Number),n=(h*60+m+Math.floor(off/60))%1440;return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
+function render(){
+const s=current();$('scheduleSelect').innerHTML=state.schedules.map(x=>`<option value="${esc(x.id)}" ${x.id===s.id?'selected':''}>${esc(x.name)}</option>`).join('');$('scheduleName').value=s.name;$('startTime').value=s.start||'12:00';$('targetTime').value=s.target??15;
+$('count').textContent=s.items.length+'項目';$('empty').style.display=s.items.length?'none':'block';
+$('items').innerHTML=s.items.map((it,i)=>`<div class="item" data-id="${esc(it.id)}"><div class="item-head"><div class="row"><b class="gold">${String(i+1).padStart(2,'0')}</b><span class="pill">${esc(it.type)}</span></div><div class="item-actions"><button class="secondary" data-act="up" ${i===0?'disabled':''}>↑</button><button class="secondary" data-act="down" ${i===s.items.length-1?'disabled':''}>↓</button><button class="danger" data-act="delete">×</button></div></div><input data-field="name" aria-label="項目名" value="${esc(it.name)}"><div class="grid2" style="margin-top:8px"><label>分<input data-field="min" type="number" min="0" value="${Number(it.min)||0}"></label><label>秒<input data-field="sec" type="number" min="0" max="59" value="${Number(it.sec)||0}"></label></div><div class="duration">${long(dur(it))}</div></div>`).join('');
+const total=s.items.reduce((a,x)=>a+dur(x),0),dance=s.items.filter(x=>x.type==='演舞').reduce((a,x)=>a+dur(x),0),other=total-dance,target=Math.max(0,Number(s.target)||0)*60,delta=target-total;
+$('danceTotal').textContent=fmt(dance);$('grandTotal').textContent=fmt(total);$('otherTotal').textContent=fmt(other);$('endTime').textContent=at(s.start,total);$('difference').textContent=delta>=0?'残り '+long(delta):'超過 '+long(-delta);
+const f={...defaultFeatures,...state.features};$('timeline').style.display=f.showTimeline?'block':'none';let elapsed=0;
+$('timeline').innerHTML=s.items.length?s.items.map((it,i)=>{let start=elapsed,d=dur(it);elapsed+=d;return `<div class="timepoint"><b class="gold">${String(i+1).padStart(2,'0')} · ${esc(it.name)}</b><div style="margin-top:5px">${at(s.start,start)} → ${at(s.start,elapsed)}</div><div class="muted tiny">${esc(it.type)} ／ ${long(d)}${f.showElapsed?' ／ 経過 '+long(start):''}</div></div>`}).join(''):'項目を追加すると表示されます。';
+}
+function renderCompositions(){
+const cards=$('compositionCards'),list=$('assemblyList');
+$('compositionCount').textContent=state.compositions.length+'件';
+$('compositionEmpty').style.display=state.compositions.some(c=>c.category===activeCategory)?'none':'block';
+cards.innerHTML=state.compositions.filter(c=>c.category===activeCategory).map(c=>`<div class="composition-card" draggable="true" data-composition-id="${esc(c.id)}"><strong>${esc(c.name)}</strong><div class="card-meta"><span class="pill">${esc(c.category)}</span><span class="card-time">${long(dur(c))}</span></div><div class="card-actions"><button class="primary" data-card-act="add">＋追加</button>${isAdmin?'<button class="secondary" data-card-act="edit">編集</button><button class="danger" data-card-act="delete">削除</button>':''}</div></div>`).join('');
+$('compositionAdminPanel').style.display=isAdmin?'block':'none';
+document.querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('active',b.dataset.category===activeCategory));
+$('assemblyEmpty').style.display=state.assembly.length?'none':'block';
+list.innerHTML=state.assembly.map((entry,i)=>{const c=state.compositions.find(x=>x.id===entry.compositionId);if(!c)return '';return `<div class="assembly-row" draggable="true" data-assembly-index="${i}"><span class="muted tiny">${String(i+1).padStart(2,'0')}</span><div class="assembly-title"><b>${esc(c.name)}</b><div class="muted tiny">${esc(c.category)}</div></div><span class="assembly-time">${long(dur(c))}</span><button class="secondary" data-assembly-act="position">立ち位置</button><button class="secondary" data-assembly-act="up" ${i===0?'disabled':''}>↑</button><button class="secondary" data-assembly-act="down" ${i===state.assembly.length-1?'disabled':''}>↓</button><button class="danger" data-assembly-act="remove">×</button></div>`}).join('');
+const total=state.assembly.reduce((sum,e)=>{const c=state.compositions.find(x=>x.id===e.compositionId);return sum+(c?dur(c):0)},0);
+$('assemblyTotal').textContent=long(total);$('assemblyCount').textContent=state.assembly.length+'構成';if(activePositionEntryId)renderPositionEditor();
+}
+function addToAssembly(id){if(!state.compositions.some(c=>c.id===id))return;state.assembly.push({id:uid(),compositionId:id});save();renderCompositions();toast('演舞に追加しました')}
+function resetCompositionForm(){editingComposition=null;$('compositionCategory').value=activeCategory;$('compositionName').value='';$('compositionMin').value=2;$('compositionSec').value=0;$('saveComposition').textContent='＋ 構成を登録';$('compositionEditHint').textContent='登録した構成は後から編集・削除できます。'}
+function update(){save();render();renderCompositions()}
+async function loadSharedCompositions(){
+  const status=$('compositionShareStatus');
+  try{
+    status.textContent='共有データを確認しています…';
+    const response=await fetch('/api/compositions',{cache:'no-store',credentials:'same-origin'});
+    if(!response.ok)throw new Error(response.status===503?'共有データベースが未設定です。':`読み込みに失敗しました（${response.status}）`);
+    const data=await response.json();
+    if(!Array.isArray(data.compositions))throw new Error('共有データの形式が正しくありません。');
+    isAdmin=data.role==='admin';
+    if(data.compositions.length===0&&isAdmin&&!legacyImportAttempted&&state.compositions.length){
+      legacyImportAttempted=true;
+      for(const old of state.compositions){
+        const put=await fetch('/api/compositions',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(old)});
+        if(!put.ok)throw new Error('既存構成の共有登録に失敗しました。');
+      }
+      const again=await fetch('/api/compositions',{cache:'no-store',credentials:'same-origin'});
+      if(!again.ok)throw new Error('共有構成を再読み込みできませんでした。');
+      const refreshed=await again.json();data.compositions=refreshed.compositions;
+    }
+    state.compositions=data.compositions.map(c=>({id:String(c.id),name:String(c.name),category:String(c.category),min:Number(c.min)||0,sec:Number(c.sec)||0}));
+    if(editingComposition&&!state.compositions.some(c=>c.id===editingComposition))resetCompositionForm();
+    save();renderCompositions();
+    status.textContent=isAdmin?'管理者モード · 登録済み構成は全員に共有されます':'閲覧モード · 構成の登録・編集・削除は管理者のみ';
+  }catch(error){status.textContent='共有データを読み込めません：'+error.message;toast('共有構成を読み込めませんでした');}
+}
+async function saveSharedComposition(payload){
+  if(compositionBusy)return;
+  compositionBusy=true;$('saveComposition').disabled=true;
+  try{
+    const response=await fetch('/api/compositions',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||`保存できませんでした（${response.status}）`);
+    activeCategory=payload.category;resetCompositionForm();await loadSharedCompositions();toast('共有構成を保存しました');
+  }catch(error){toast(error.message)}finally{compositionBusy=false;$('saveComposition').disabled=false;}
+}
+async function deleteSharedComposition(id){
+  if(compositionBusy)return;compositionBusy=true;
+  try{
+    const response=await fetch('/api/compositions?id='+encodeURIComponent(id),{method:'DELETE',credentials:'same-origin'});
+    const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||`削除できませんでした（${response.status}）`);
+    state.assembly=state.assembly.filter(x=>x.compositionId!==id);if(editingComposition===id)resetCompositionForm();save();await loadSharedCompositions();toast('共有構成を削除しました');
+  }catch(error){toast(error.message)}finally{compositionBusy=false;}
+}
+function switchTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));if(id==='compositions')loadSharedCompositions()}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+$('scheduleSelect').onchange=e=>{state.active=e.target.value;render()};
+$('newSchedule').onclick=()=>{let s=fresh();state.schedules.push(s);state.active=s.id;update();toast('新しい進行表を作成しました')};
+$('renameSchedule').onclick=()=>{let v=$('scheduleName').value.trim();if(!v)return toast('名前を入力してください');current().name=v;update()};
+$('duplicateSchedule').onclick=()=>{let s=JSON.parse(JSON.stringify(current()));s.id=uid();s.name+='（コピー）';s.items.forEach(x=>x.id=uid());state.schedules.push(s);state.active=s.id;update();toast('進行表を複製しました')};
+$('deleteSchedule').onclick=()=>{if(state.schedules.length===1)return toast('最後の1つは削除できません');if(!confirm('この進行表を削除しますか？'))return;state.schedules=state.schedules.filter(s=>s.id!==state.active);state.active=state.schedules[0].id;update()};
+$('startTime').onchange=e=>{current().start=e.target.value||'12:00';update()};
+$('targetTime').onchange=e=>{current().target=Math.max(0,Math.min(1440,Number(e.target.value)||0));update()};
+$('addItem').onclick=()=>{let name=$('newName').value.trim(),min=Number($('newMin').value),sec=Number($('newSec').value);if(!name)return toast('項目名を入力してください');if(!Number.isInteger(min)||min<0||min>1440||!Number.isInteger(sec)||sec<0||sec>59)return toast('時間を正しく入力してください');current().items.push({id:uid(),name,type:$('newType').value,min,sec});$('newName').value='';update();toast('項目を追加しました')};
+$('items').addEventListener('change',e=>{let el=e.target.closest('[data-field]');if(!el)return;let item=current().items.find(x=>x.id===el.closest('[data-id]').dataset.id);if(!item)return;let f=el.dataset.field;if(f==='name')item.name=el.value;else{let v=Number(el.value);if(!Number.isInteger(v)||v<0||v>(f==='sec'?59:1440)){toast('時間を正しく入力してください');render();return}item[f]=v}update()});
+$('items').addEventListener('click',e=>{let b=e.target.closest('[data-act]');if(!b)return;let a=current().items,i=a.findIndex(x=>x.id===b.closest('[data-id]').dataset.id),act=b.dataset.act;if(i<0)return;if(act==='delete')a.splice(i,1);else if(act==='up'&&i>0)[a[i-1],a[i]]=[a[i],a[i-1]];else if(act==='down'&&i<a.length-1)[a[i+1],a[i]]=[a[i],a[i+1]];update()});
+$('saveComposition').onclick=()=>{if(!isAdmin)return toast('管理者のみ登録・編集できます');const name=$('compositionName').value.trim(),min=Number($('compositionMin').value),sec=Number($('compositionSec').value),category=$('compositionCategory').value;if(!name)return toast('構成名を入力してください');if(!Number.isInteger(min)||min<0||min>1440||!Number.isInteger(sec)||sec<0||sec>59)return toast('時間を正しく入力してください');saveSharedComposition({id:editingComposition||uid(),name,category,min,sec})};
+$('categoryTabs').onclick=e=>{const b=e.target.closest('[data-category]');if(!b)return;activeCategory=b.dataset.category;resetCompositionForm();renderCompositions()};
+$('compositionCards').onclick=e=>{const card=e.target.closest('[data-composition-id]'),btn=e.target.closest('[data-card-act]');if(!card||!btn)return;const id=card.dataset.compositionId,c=state.compositions.find(x=>x.id===id);if(!c)return;if(btn.dataset.cardAct==='add')addToAssembly(id);if(btn.dataset.cardAct==='edit'){if(!isAdmin)return toast('管理者のみ編集できます');editingComposition=id;$('compositionCategory').value=c.category;$('compositionName').value=c.name;$('compositionMin').value=c.min;$('compositionSec').value=c.sec;$('saveComposition').textContent='変更を保存';$('compositionEditHint').textContent='編集中：'+c.name+'（保存すると演舞内の同じ構成にも変更が反映されます）';window.scrollTo({top:0,behavior:'smooth'})}if(btn.dataset.cardAct==='delete'){if(!isAdmin)return toast('管理者のみ削除できます');if(!confirm('この構成を削除しますか？演舞に組み込んでいる同じ構成も一覧から外れます。'))return;deleteSharedComposition(id)}};
+$('refreshCompositions').onclick=loadSharedCompositions;
+$('compositionCards').addEventListener('dragstart',e=>{const card=e.target.closest('[data-composition-id]');if(!card)return;dragAssemblyIndex=null;dragCompositionId=card.dataset.compositionId;e.dataTransfer.setData('text/plain',dragCompositionId);e.dataTransfer.effectAllowed='copy'});
+$('assemblyDrop').ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect=dragCompositionId?'copy':'move'};
+$('assemblyDrop').ondrop=e=>{e.preventDefault();const id=e.dataTransfer.getData('text/plain');if(dragCompositionId&&state.compositions.some(c=>c.id===id)){addToAssembly(id)}else if(dragAssemblyIndex!==null){const target=e.target.closest('[data-assembly-index]'),to=target?Number(target.dataset.assemblyIndex):state.assembly.length,from=dragAssemblyIndex;if(from!==to&&from>=0&&from<state.assembly.length){const [m]=state.assembly.splice(from,1);state.assembly.splice(Math.min(to,state.assembly.length),0,m);save();renderCompositions()}}dragCompositionId=null;dragAssemblyIndex=null};
+$('assemblyList').addEventListener('dragstart',e=>{const row=e.target.closest('[data-assembly-index]');if(!row)return;dragCompositionId=null;dragAssemblyIndex=Number(row.dataset.assemblyIndex);e.dataTransfer.setData('text/plain','assembly');e.dataTransfer.effectAllowed='move'});
+$('assemblyList').addEventListener('click',e=>{const b=e.target.closest('[data-assembly-act]');if(!b)return;const i=Number(b.closest('[data-assembly-index]').dataset.assemblyIndex),a=state.assembly,act=b.dataset.assemblyAct;if(act==='position'){openPositionEditor(a[i].id);return}if(act==='remove')a.splice(i,1);else if(act==='up'&&i>0)[a[i-1],a[i]]=[a[i],a[i-1]];else if(act==='down'&&i<a.length-1)[a[i+1],a[i]]=[a[i],a[i+1]];save();renderCompositions()});
+$('clearAssembly').onclick=()=>{if(!state.assembly.length)return;if(!confirm('組み立て中の構成をすべて外しますか？'))return;state.assembly=[];save();renderCompositions()};
+
+
+function getPositionLayout(entryId){
+  let data=state.positionLayouts[entryId];
+  // 旧版のマス目データがある場合は、新しい自由配置の隊形へ移行する
+  if(Array.isArray(data)){
+    const markers=data.map((d,i)=>({id:d.id||uid(),name:String(d.name||d.number||('踊り手'+(i+1))),color:d.color||'#d7b66c',x:8+(Number(d.col)||0)*9.3,y:8+(Number(d.row)||0)*12}));
+    data={showLines:true,active:0,formations:[{id:uid(),name:'最初の隊形',markers}]};
+    state.positionLayouts[entryId]=data;
+  }
+  if(!data||!Array.isArray(data.formations)||!data.formations.length){
+    data={showLines:true,active:0,formations:[{id:uid(),name:'最初の隊形',markers:[]}]};
+    state.positionLayouts[entryId]=data;
+  }
+  data.formations.forEach(f=>{if(!Array.isArray(f.markers))f.markers=[];f.markers.forEach(m=>{if(!Number.isFinite(Number(m.size)))m.size=52})});
+  data.active=Math.max(0,Math.min(Number(data.active)||0,data.formations.length-1));
+  if(typeof data.showLines!=='boolean')data.showLines=true;
+  if(typeof data.snapToGrid!=='boolean')data.snapToGrid=false;
+  if(![1,2,3,4,5].includes(Number(data.gridDivision)))data.gridDivision=1;
+  return data;
+}
+function currentFormation(){
+  const data=getPositionLayout(activePositionEntryId);
+  return data.formations[data.active];
+}
+function renderPositionEditor(){
+  const panel=$('positionEditor');
+  if(!activePositionEntryId){if(positionFullscreen)setPositionFullscreen(false);panel.classList.add('hidden');return}
+  const entry=state.assembly.find(x=>x.id===activePositionEntryId);
+  const comp=entry&&state.compositions.find(x=>x.id===entry.compositionId);
+  if(!entry||!comp){activePositionEntryId=null;panel.classList.add('hidden');return}
+  panel.classList.remove('hidden');
+  $('positionEditorTitle').textContent=comp.name+' · '+comp.category+' ／ 丸をドラッグして自由に配置';
+  const data=getPositionLayout(entry.id),formation=currentFormation();
+  $('formationTabs').innerHTML=data.formations.map((f,i)=>`<button type="button" class="secondary formation-tab ${i===data.active?'active':''}" data-formation-index="${i}">${esc(f.name||('隊形'+(i+1)))}</button>`).join('');
+  $('formationCounter').textContent=(data.active+1)+' / '+data.formations.length;
+  $('formationNameInput').value=formation.name||('隊形'+(data.active+1));
+  $('showMoveLines').checked=data.showLines;
+  $('snapToGrid').checked=data.snapToGrid;
+  $('gridDivision').value=String(data.gridDivision);
+  const subgrid=$('subgridOverlay');
+  subgrid.hidden=!data.snapToGrid||data.gridDivision===1;
+  subgrid.style.backgroundSize=(5/data.gridDivision)+'% '+(10/data.gridDivision)+'%';
+  const stage=$('positionStage'),markers=$('stageMarkers'),svg=$('stageLines');
+  const prev=data.active>0?data.formations[data.active-1]:null;
+  const markerById=new Map(formation.markers.map(m=>[m.id,m]));
+  const lines=[];
+  if(data.showLines&&prev){
+    prev.markers.forEach(old=>{
+      const now=markerById.get(old.id);
+      if(now)lines.push(`<line x1="${old.x*10}" y1="${old.y*10}" x2="${now.x*10}" y2="${now.y*10}" stroke="${esc(now.color||'#d7b66c')}" stroke-width="4" stroke-dasharray="10 7" marker-end="url(#moveArrow)"/>`);
+    });
+  }
+  svg.innerHTML=`<defs><marker id="moveArrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#334155"/></marker></defs>${lines.join('')}`;
+  markers.innerHTML=formation.markers.map(m=>`<button type="button" class="stage-marker ${selectedMarkerIds.has(m.id)||m.id===selectedDancerId?'selected':''}" data-marker-id="${esc(m.id)}" style="left:${Math.max(2,Math.min(98,Number(m.x)||50))}%;top:${Math.max(3,Math.min(97,Number(m.y)||50))}%;width:${Math.max(32,Math.min(100,Number(m.size)||52))}px;height:${Math.max(32,Math.min(100,Number(m.size)||52))}px;background:${esc(m.color||'#d7b66c')}" title="${esc(m.name)}"><span>${esc(m.name||'名前')}</span></button>`).join('');
+  const selected=formation.markers.find(m=>m.id===selectedDancerId);
+  const single=selectedMarkerIds.size===1?formation.markers.find(m=>selectedMarkerIds.has(m.id)):selected;
+  $('removeDancer').disabled=selectedMarkerIds.size===0&&!selected;
+  $('duplicateDancer').disabled=selectedMarkerIds.size===0&&!selected;
+  $('markerName').disabled=!single;$('markerColor').disabled=!single;
+  $('markerName').value=single?single.name:'';
+  $('markerColor').value=single?single.color:'#d7b66c';
+  const sizeTarget=single||(selectedMarkerIds.size>1?formation.markers.find(m=>selectedMarkerIds.has(m.id)):null);
+  $('markerSize').disabled=!sizeTarget;
+  $('markerSize').value=sizeTarget?(Number(sizeTarget.size)||52):52;
+  $('markerSizeValue').textContent=sizeTarget?(Number(sizeTarget.size)||52)+'px':'—';
+  if(typeof updateArrangeControls==='function')updateArrangeControls();
+}
+function savePositionLayout(){
+  save();renderPositionEditor();
+  $('positionSaveStatus').textContent='✓ このブラウザに自動保存済み';
+}
+
+let positionFullscreen=false;
+function setPositionFullscreen(on){
+  positionFullscreen=Boolean(on);
+  const panel=$('positionEditor');
+  panel.classList.toggle('is-fullscreen',positionFullscreen);
+  document.body.classList.toggle('position-fullscreen-active',positionFullscreen);
+  const btn=$('togglePositionFullscreen');
+  btn.textContent=positionFullscreen?'⤢ 通常表示に戻す':'⛶ 全画面で編集';
+  btn.setAttribute('aria-pressed',String(positionFullscreen));
+  if(positionFullscreen)panel.scrollTop=0;
+}
+$('togglePositionFullscreen').onclick=()=>setPositionFullscreen(!positionFullscreen);
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&positionFullscreen)setPositionFullscreen(false);
+});
+
+function openPositionEditor(entryId){
+  activePositionEntryId=entryId;selectedDancerId=null;selectedMarkerIds.clear();renderPositionEditor();
+  $('positionEditor').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('closePositionEditor').onclick=()=>{setPositionFullscreen(false);activePositionEntryId=null;selectedDancerId=null;selectedMarkerIds.clear();renderPositionEditor()};
+$('addFormation').onclick=()=>{
+  if(!activePositionEntryId)return;
+  const data=getPositionLayout(activePositionEntryId),prev=currentFormation();
+  const markers=prev.markers.map(m=>({...m,id:m.id}));
+  data.formations.splice(data.active+1,0,{id:uid(),name:'隊形'+(data.formations.length+1),markers});
+  data.active++;
+  selectedDancerId=null;selectedMarkerIds.clear();savePositionLayout();toast('隊形を追加しました');
+};
+$('duplicateFormation').onclick=()=>{
+  if(!activePositionEntryId)return;
+  const data=getPositionLayout(activePositionEntryId),prev=currentFormation();
+  const copy={id:uid(),name:(prev.name||'隊形')+' コピー',markers:prev.markers.map(m=>({...m,id:m.id}))};
+  data.formations.splice(data.active+1,0,copy);data.active++;selectedDancerId=null;
+  savePositionLayout();toast('隊形を複製しました');
+};
+$('deleteFormation').onclick=()=>{
+  if(!activePositionEntryId)return;
+  const data=getPositionLayout(activePositionEntryId);
+  if(data.formations.length<=1)return toast('最後の隊形は削除できません');
+  if(!confirm('この隊形を削除しますか？'))return;
+  data.formations.splice(data.active,1);data.active=Math.max(0,data.active-1);selectedDancerId=null;
+  savePositionLayout();toast('隊形を削除しました');
+};
+function renameActiveFormation(){
+  if(!activePositionEntryId)return;
+  const name=$('formationNameInput').value.trim();
+  if(!name)return toast('隊形名を入力してください');
+  currentFormation().name=name;
+  savePositionLayout();
+  toast('隊形名を変更しました');
+}
+$('renameFormation').onclick=renameActiveFormation;
+$('formationNameInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){e.preventDefault();renameActiveFormation()}
+});
+$('formationTabs').onclick=e=>{
+  const b=e.target.closest('[data-formation-index]');if(!b||!activePositionEntryId)return;
+  const data=getPositionLayout(activePositionEntryId);data.active=Number(b.dataset.formationIndex);selectedDancerId=null;selectedMarkerIds.clear();savePositionLayout();
+};
+$('showMoveLines').onchange=e=>{
+  if(!activePositionEntryId)return;
+  getPositionLayout(activePositionEntryId).showLines=e.target.checked;savePositionLayout();
+};
+$('addDancer').onclick=()=>{
+  if(!activePositionEntryId)return;
+  const f=currentFormation();
+  if(f.markers.length>=80)return toast('丸は80個まで追加できます');
+  let n=f.markers.length+1,name='踊り手'+n;
+  const marker={id:uid(),name,color:'#d7b66c',size:52,x:35+(f.markers.length%5)*7,y:35+(Math.floor(f.markers.length/5)%5)*7};
+  f.markers.push(marker);selectedDancerId=marker.id;selectedMarkerIds=new Set([marker.id]);savePositionLayout();toast('丸を追加しました');
+};
+$('removeDancer').onclick=()=>{
+  if(!activePositionEntryId)return;
+  const ids=new Set(selectedMarkerIds);if(selectedDancerId)ids.add(selectedDancerId);
+  if(!ids.size)return;
+  const f=currentFormation();f.markers=f.markers.filter(m=>!ids.has(m.id));
+  selectedDancerId=null;selectedMarkerIds.clear();savePositionLayout();toast(ids.size+'個の丸を削除しました');
+};
+$('duplicateDancer').onclick=()=>{
+  if(!activePositionEntryId)return;
+  const f=currentFormation(),ids=new Set(selectedMarkerIds);if(selectedDancerId)ids.add(selectedDancerId);
+  const originals=f.markers.filter(m=>ids.has(m.id));if(!originals.length)return;
+  if(f.markers.length+originals.length>80)return toast('丸は80個まで追加できます');
+  const copies=originals.map(m=>({...m,id:uid(),x:Math.min(96,m.x+5),y:Math.min(95,m.y+5)}));
+  f.markers.push(...copies);selectedMarkerIds=new Set(copies.map(m=>m.id));
+  selectedDancerId=copies.length===1?copies[0].id:null;savePositionLayout();toast(copies.length+'個の丸を複製しました');
+};
+$('markerName').oninput=e=>{
+  if(!activePositionEntryId||!selectedDancerId)return;
+  const m=currentFormation().markers.find(x=>x.id===selectedDancerId);if(!m)return;
+  m.name=e.target.value;save();$('positionSaveStatus').textContent='✓ このブラウザに自動保存済み';
+  const dot=document.querySelector(`[data-marker-id="${CSS.escape(selectedDancerId)}"]`);if(dot)dot.querySelector('span').textContent=m.name||'名前';
+};
+$('snapToGrid').onchange=e=>{
+  if(!activePositionEntryId)return;
+  getPositionLayout(activePositionEntryId).snapToGrid=e.target.checked;
+  savePositionLayout();
+  toast(e.target.checked?'グリッド吸着をONにしました':'グリッド吸着をOFFにしました');
+};
+$('gridDivision').onchange=e=>{
+  if(!activePositionEntryId)return;
+  getPositionLayout(activePositionEntryId).gridDivision=Number(e.target.value);
+  savePositionLayout();
+};
+$('markerSize').oninput=e=>{
+  if(!activePositionEntryId)return;
+  const size=Number(e.target.value),items=getSelectedMarkers();
+  if(!items.length)return;
+  items.forEach(m=>m.size=size);
+  $('markerSizeValue').textContent=size+'px';
+  items.forEach(m=>{
+    const dot=document.querySelector(`[data-marker-id="${CSS.escape(m.id)}"]`);
+    if(dot){dot.style.width=size+'px';dot.style.height=size+'px'}
+  });
+  save();
+};
+$('markerColor').oninput=e=>{
+  if(!activePositionEntryId)return;
+  const ids=selectedMarkerIds.size?selectedMarkerIds:new Set(selectedDancerId?[selectedDancerId]:[]);
+  if(ids.size!==1)return;
+  const m=currentFormation().markers.find(x=>ids.has(x.id));if(!m)return;
+  m.color=e.target.value;
+  const dot=document.querySelector(`[data-marker-id="${CSS.escape(m.id)}"]`);
+  if(dot)dot.style.background=m.color;
+  save();$('positionSaveStatus').textContent='✓ このブラウザに自動保存済み';
+};
+let pointerMode=null,dragStart=null,dragOrigins=null,marqueeStart=null;
+const stage=$('positionStage'),selectionBox=$('selectionBox');
+stage.addEventListener('pointerdown',e=>{
+  if(!activePositionEntryId)return;
+  const dot=e.target.closest('[data-marker-id]'),rect=stage.getBoundingClientRect();
+  if(dot){
+    const id=dot.dataset.markerId;
+    if(e.shiftKey){if(selectedMarkerIds.has(id))selectedMarkerIds.delete(id);else selectedMarkerIds.add(id);}
+    else if(!selectedMarkerIds.has(id))selectedMarkerIds=new Set([id]);
+    selectedDancerId=selectedMarkerIds.size===1?[...selectedMarkerIds][0]:null;
+    renderPositionEditor();pointerMode='drag';dragStart={x:e.clientX,y:e.clientY};
+    dragOrigins=currentFormation().markers.filter(m=>selectedMarkerIds.has(m.id)).map(m=>({id:m.id,x:m.x,y:m.y}));
+    stage.setPointerCapture(e.pointerId);e.preventDefault();
+  }else{
+    pointerMode='marquee';if(!e.shiftKey){selectedMarkerIds.clear();selectedDancerId=null;renderPositionEditor();}
+    marqueeStart={x:e.clientX-rect.left,y:e.clientY-rect.top};
+    selectionBox.hidden=false;selectionBox.style.left=marqueeStart.x+'px';selectionBox.style.top=marqueeStart.y+'px';
+    selectionBox.style.width='0px';selectionBox.style.height='0px';stage.setPointerCapture(e.pointerId);e.preventDefault();
+  }
+});
+stage.addEventListener('pointermove',e=>{
+  if(!pointerMode||!activePositionEntryId)return;
+  const rect=stage.getBoundingClientRect();
+  if(pointerMode==='drag'&&dragStart&&dragOrigins){
+    const dx=(e.clientX-dragStart.x)/rect.width*100,dy=(e.clientY-dragStart.y)/rect.height*100,f=currentFormation();
+    dragOrigins.forEach(o=>{const m=f.markers.find(x=>x.id===o.id);if(!m)return;
+      m.x=Math.max(2,Math.min(98,o.x+dx));m.y=Math.max(3,Math.min(97,o.y+dy));
+      const dot=document.querySelector(`[data-marker-id="${CSS.escape(m.id)}"]`);if(dot){dot.style.left=m.x+'%';dot.style.top=m.y+'%'}
+    });
+  }else if(pointerMode==='marquee'&&marqueeStart){
+    const x=Math.max(0,Math.min(rect.width,e.clientX-rect.left)),y=Math.max(0,Math.min(rect.height,e.clientY-rect.top));
+    const left=Math.min(marqueeStart.x,x),top=Math.min(marqueeStart.y,y);
+    Object.assign(selectionBox.style,{left:left+'px',top:top+'px',width:Math.abs(x-marqueeStart.x)+'px',height:Math.abs(y-marqueeStart.y)+'px'});
+  }
+});
+function finishStagePointer(){
+  if(pointerMode==='marquee'&&marqueeStart){
+    const rect=stage.getBoundingClientRect(),box=selectionBox.getBoundingClientRect(),f=currentFormation();
+    f.markers.forEach(m=>{const px=rect.left+rect.width*m.x/100,py=rect.top+rect.height*m.y/100;
+      if(px>=box.left&&px<=box.right&&py>=box.top&&py<=box.bottom)selectedMarkerIds.add(m.id);
+    });
+    selectedDancerId=selectedMarkerIds.size===1?[...selectedMarkerIds][0]:null;
+    selectionBox.hidden=true;renderPositionEditor();
+  }else if(pointerMode==='drag'){
+    const data=getPositionLayout(activePositionEntryId),f=currentFormation();
+    if(data.snapToGrid){
+      dragOrigins?.forEach(o=>{
+        const m=f.markers.find(x=>x.id===o.id);if(!m)return;
+        m.x=Math.max(2,Math.min(98,Math.round(m.x/(5/data.gridDivision))*(5/data.gridDivision)));
+        m.y=Math.max(3,Math.min(97,Math.round(m.y/(10/data.gridDivision))*(10/data.gridDivision)));
+      });
+    }
+    savePositionLayout();
+  }
+  pointerMode=null;dragStart=null;dragOrigins=null;marqueeStart=null;
+}
+stage.addEventListener('pointerup',finishStagePointer);
+stage.addEventListener('pointercancel',finishStagePointer);
+
+
+function getSelectedMarkers(){
+  const f=currentFormation();
+  const ids=new Set(selectedMarkerIds);
+  if(selectedDancerId)ids.add(selectedDancerId);
+  return f.markers.filter(m=>ids.has(m.id));
+}
+function updateArrangeControls(){
+  const count=getSelectedMarkers().length;
+  document.querySelectorAll('.arrange-btn').forEach(btn=>{
+    const mode=btn.dataset.arrange;
+    btn.disabled=(mode.startsWith('distribute')?count<3:count<2);
+  });
+  $('arrangeStatus').textContent=count+'個選択中'+(count<2?'（2個以上選択してください）':count<3?' ／ 均等配置は3個以上必要':'');
+}
+function arrangeSelected(mode){
+  if(!activePositionEntryId)return;
+  const items=getSelectedMarkers();
+  if(items.length<2)return;
+  const xs=items.map(m=>m.x),ys=items.map(m=>m.y);
+  if(mode==='left'){const v=Math.min(...xs);items.forEach(m=>m.x=v)}
+  else if(mode==='centerX'){const v=(Math.min(...xs)+Math.max(...xs))/2;items.forEach(m=>m.x=v)}
+  else if(mode==='right'){const v=Math.max(...xs);items.forEach(m=>m.x=v)}
+  else if(mode==='top'){const v=Math.min(...ys);items.forEach(m=>m.y=v)}
+  else if(mode==='centerY'){const v=(Math.min(...ys)+Math.max(...ys))/2;items.forEach(m=>m.y=v)}
+  else if(mode==='bottom'){const v=Math.max(...ys);items.forEach(m=>m.y=v)}
+  else if(mode==='distributeX'||mode==='distributeY'){
+    if(items.length<3)return;
+    const key=mode==='distributeX'?'x':'y';
+    const ordered=[...items].sort((a,b)=>a[key]-b[key]);
+    const first=ordered[0][key],last=ordered[ordered.length-1][key];
+    ordered.forEach((m,i)=>m[key]=first+(last-first)*i/(ordered.length-1));
+  }
+  savePositionLayout();
+  renderPositionEditor();
+  updateArrangeControls();
+  toast('選択した丸を配置しました');
+}
+document.querySelectorAll('.arrange-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>arrangeSelected(btn.dataset.arrange));
+});
+
+
+const MARKER_PRESET_STORE='awaPlannerMarkerPresets_v1';
+function readMarkerPresets(){
+  try{const v=JSON.parse(localStorage.getItem(MARKER_PRESET_STORE));return Array.isArray(v)?v:[]}
+  catch(e){return []}
+}
+function writeMarkerPresets(v){localStorage.setItem(MARKER_PRESET_STORE,JSON.stringify(v));renderMarkerPresets()}
+function renderMarkerPresets(){
+  const sel=$('markerPresetSelect'),old=sel.value,presets=readMarkerPresets();
+  sel.innerHTML='<option value="">プリセットを選択</option>'+presets.map(p=>`<option value="${esc(p.id)}">${esc(p.label)}</option>`).join('');
+  if(presets.some(p=>p.id===old))sel.value=old;
+}
+function chosenMarkerPreset(){return readMarkerPresets().find(p=>p.id===$('markerPresetSelect').value)}
+$('saveMarkerPreset').onclick=()=>{
+  if(!activePositionEntryId)return toast('先に隊形を開いてください');
+  const selected=getSelectedMarkers();
+  if(selected.length!==1)return toast('登録する丸を1個選んでください');
+  const m=selected[0],label=$('presetName').value.trim()||m.name||'プリセット';
+  const presets=readMarkerPresets();
+  const p={id:uid(),label,name:m.name,color:m.color,size:Number(m.size)||52};
+  presets.push(p);writeMarkerPresets(presets);$('markerPresetSelect').value=p.id;
+  $('presetName').value='';toast('プリセットを登録しました');
+};
+$('addPresetMarker').onclick=()=>{
+  if(!activePositionEntryId)return toast('先に隊形を開いてください');
+  const p=chosenMarkerPreset();if(!p)return toast('プリセットを選択してください');
+  const f=currentFormation();if(f.markers.length>=80)return toast('丸は80個まで追加できます');
+  const offset=f.markers.length;
+  const m={id:uid(),name:p.name,color:p.color,size:p.size,x:35+(offset%5)*7,y:35+(Math.floor(offset/5)%5)*7};
+  f.markers.push(m);selectedMarkerIds=new Set([m.id]);selectedDancerId=m.id;
+  savePositionLayout();toast('プリセットから丸を追加しました');
+};
+$('applyMarkerPreset').onclick=()=>{
+  if(!activePositionEntryId)return;
+  const p=chosenMarkerPreset();if(!p)return toast('プリセットを選択してください');
+  const items=getSelectedMarkers();if(!items.length)return toast('丸を選択してください');
+  items.forEach(m=>{m.name=p.name;m.color=p.color;m.size=p.size});
+  savePositionLayout();toast(items.length+'個の丸にプリセットを適用しました');
+};
+$('deleteMarkerPreset').onclick=()=>{
+  const p=chosenMarkerPreset();if(!p)return toast('プリセットを選択してください');
+  if(!confirm('「'+p.label+'」を削除しますか？'))return;
+  writeMarkerPresets(readMarkerPresets().filter(x=>x.id!==p.id));toast('プリセットを削除しました');
+};
+renderMarkerPresets();
+
+function applyDesign(d){let r=document.documentElement;r.style.setProperty('--bg',d.bg);r.style.setProperty('--panel',d.panel);r.style.setProperty('--accent',d.accent);r.style.setProperty('--gold',d.accent);r.style.setProperty('--gold2',d.accent);r.style.setProperty('--text',d.text);document.body.style.background=d.bg}
+function initDesign(){let d={...defaults,...state.design};$('bgColor').value=d.bg;$('panelColor').value=d.panel;$('accentColor').value=d.accent;$('textColor').value=d.text;applyDesign(d)}
+$('applyDesign').onclick=()=>{state.design={bg:$('bgColor').value,panel:$('panelColor').value,accent:$('accentColor').value,text:$('textColor').value};applyDesign(state.design);save();toast('デザインを適用しました')};
+$('resetDesign').onclick=()=>{state.design={...defaults};initDesign();save();toast('初期デザインに戻しました')};
+function initFeatures(){let f={...defaultFeatures,...state.features};$('showTimeline').checked=f.showTimeline;$('showElapsed').checked=f.showElapsed;$('showDanceOnly').checked=f.showDanceOnly}
+$('applyFeatures').onclick=()=>{state.features={showTimeline:$('showTimeline').checked,showElapsed:$('showElapsed').checked,showDanceOnly:$('showDanceOnly').checked};save();render();toast('機能設定を保存しました')};
+$('printPdf').onclick=()=>window.print();
+$('exportJson').onclick=()=>download(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),'awa-odori-backup.json');
+$('importJson').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let x=JSON.parse(await f.text());if(!Array.isArray(x.schedules)||!x.schedules.length||!x.schedules.every(s=>s&&Array.isArray(s.items)))throw Error();if(!confirm('現在の進行表を読み込んだ内容に置き換えますか？'))return;state=x;if(!state.schedules.some(s=>s.id===state.active))state.active=state.schedules[0].id;
+if(!Array.isArray(state.compositions))state.compositions=[];
+if(!Array.isArray(state.assembly))state.assembly=[];if(!state.positionLayouts||typeof state.positionLayouts!=='object')state.positionLayouts={};update();toast('バックアップを読み込みました')}catch(err){toast('ファイルを読み込めませんでした')}e.target.value=''};
+function download(blob,name){let u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+$('exportPng').onclick=()=>{let s=current(),w=1100,row=64,head=210,h=head+Math.max(1,s.items.length)*row+90,c=document.createElement('canvas');c.width=w;c.height=h;let x=c.getContext('2d');x.fillStyle='#101b2a';x.fillRect(0,0,w,h);x.fillStyle='#d7b66c';x.font='bold 18px sans-serif';x.fillText('AWA ODORI / PERFORMANCE PLANNER',55,55);x.fillStyle='#f2ead8';x.font='bold 34px sans-serif';x.fillText(s.name,55,108);x.font='18px sans-serif';x.fillStyle='#aab7c5';x.fillText('開始 '+s.start+'   目標 '+s.target+' 分',55,150);let total=s.items.reduce((a,it)=>a+dur(it),0);x.fillStyle='#d7b66c';x.font='bold 24px sans-serif';x.fillText('合計 '+long(total),55,195);let elapsed=0;s.items.forEach((it,i)=>{let y=head+i*row;x.strokeStyle='#405166';x.beginPath();x.moveTo(55,y);x.lineTo(w-55,y);x.stroke();x.fillStyle='#d7b66c';x.font='bold 18px sans-serif';x.fillText(String(i+1).padStart(2,'0'),55,y+39);x.fillStyle='#f2ead8';x.font='bold 18px sans-serif';x.fillText(it.name.slice(0,28),110,y+39);x.fillStyle='#aab7c5';x.font='15px sans-serif';x.fillText(it.type,650,y+39);x.textAlign='right';x.fillStyle='#f2ead8';x.fillText(at(s.start,elapsed)+' / '+long(dur(it)),w-55,y+39);x.textAlign='left';elapsed+=dur(it)});x.fillStyle='#d7b66c';x.font='bold 20px sans-serif';x.fillText('終了予定 '+at(s.start,total),55,h-35);c.toBlob(b=>{if(b)download(b,'awa-odori-plan.png')})};
+initDesign();initFeatures();render();renderCompositions();save();loadSharedCompositions();
+})();
+</script>
